@@ -1,30 +1,32 @@
 const express = require('express')
 const app = express()
+const MongoClient = require('mongodb').MongoClient;
+const url = 'mongodb://localhost:27017';
+const dbName = 'Bootcamp15th';
+let db;
  
-app.get('/', function (req, res) {
-  res.send('Hello World!!')
-})
+app.use(express.static('public'));
 
-app.get('/users/', function(req, res) {
-  res.send([
-    { id: 1, name: '홍길동' },
-    { id: 2, name: '김유신' },
-  ])
+MongoClient.connect(url, { 
+  useUnifiedTopology: true 
+}, function(err, client) {
+  console.log("Connected successfully to mongodb");
+ 
+  db = client.db(dbName);
+
+  app.listen(3000, function() {
+    console.log('Ready to server')
+  });
 });
 
-app.get('/users/:id', function(req, res) {
-  if(req.params.id === '1') {
-    res.send({
-      id: 1,
-      name: '홍길동'
-    })
-  } else if (req.params.id === '2') {
-    res.send({
-      id: 2,
-      name: '김유신'
-    })  
-  }
-});
+app.get('/api/bookmarks', (req, res) => {
+  const bookmark = db.collection('bookmark');
 
-app.listen(3000);
+  bookmark.find().toArray(function(err, docs) {
+    console.log(err);
+    console.log(docs);
+
+    res.send(docs);
+  });
+});
 
