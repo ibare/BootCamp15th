@@ -1,3 +1,4 @@
+const captureWebsite = require('capture-website');
 const express = require('express')
 const app = express()
 const MongoClient = require('mongodb').MongoClient;
@@ -7,9 +8,7 @@ let db;
  
 app.use(express.static('public'));
 
-MongoClient.connect(url, { 
-  useUnifiedTopology: true 
-}, function(err, client) {
+MongoClient.connect(url, { useUnifiedTopology: true }, function(err, client) {
   console.log("Connected successfully to mongodb");
  
   db = client.db(dbName);
@@ -19,14 +18,17 @@ MongoClient.connect(url, {
   });
 });
 
-app.get('/api/bookmarks', (req, res) => {
+app.get('/api/bookmarks', async (req, res) => {
   const bookmark = db.collection('bookmark');
+  const docs = await bookmark.find().toArray();
 
-  bookmark.find().toArray(function(err, docs) {
-    console.log(err);
-    console.log(docs);
-
-    res.send(docs);
-  });
+  res.send(docs);
 });
 
+app.post('/api/bookmarks', async (req, res) => {
+
+  // await captureWebsite.file('https://apple.com', 'screenshot.png');
+  const data = await captureWebsite.base64('https://apple.com');
+
+  res.send(data);
+});
