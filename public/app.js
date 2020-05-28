@@ -6,31 +6,42 @@ function contentErrorHandler() {
   alert('알 수 없는 오류가 발생했습니다.');
 }
 
-function main() {
-  
-  const api = new XMLHttpRequest();
+async function onClickAddBookmark() {
+  const txtUrl = document.querySelector('.url');
 
-  api.open('GET', '/api/bookmarks');
+  if (txtUrl.value === '') {
+    alert('웹사이트의 주소를 입력해 주세요.');
+    return;
+  }
 
-  api.addEventListener('load', () => {
-    if (api.status === 200) {
-      const container = document.querySelector('.bm-list');
-      const bmList = JSON.parse(api.responseText);
-      
-      container.innerHTML = bmList
-        .map(bookmark => `<li><a href="${bookmark.url}">${bookmark.title}(${bookmark.description})</a></li>`)
-        .join('');
-
-      container.innerHTML = bmList
-        .map(({ url, title, description }) => `<li><a href="${url}">${title}(${description})</a></li>`)
-        .join('');
-
-    } else contentErrorHandler();
+  const response = await fetch('/api/bookmarks', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      url: txtUrl.value
+    }),
   });
 
-  api.addEventListener('error', networkErrorHandler);
+  const result = await response.json();
 
-  api.send();
+  console.log(result);
+}
+
+async function main() {
+  const container = document.querySelector('.bm-list');
+  const btnAdd = document.querySelector('#new-bookmark');
+  const api = new XMLHttpRequest();
+
+  btnAdd.addEventListener('click', onClickAddBookmark);
+
+  const response = await fetch('/api/bookmarks');
+  const bmList = await response.json();
+      
+  container.innerHTML = bmList
+    .map(({ url, title, description }) => `<li><a href="${url}">${title}(${description})</a></li>`)
+    .join('');
 }
 
 document.addEventListener('DOMContentLoaded', main);
