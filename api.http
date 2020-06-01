@@ -7,4 +7,5 @@ GET http://localhost:3000/api/bookmarks HTTP/1.1
 ###
 POST http://localhost:3000/api/bookmarks HTTP/1.1
 
-
+###
+GET https://www.naver.com/ HTTP/1.1
